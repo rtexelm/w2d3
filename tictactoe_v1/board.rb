@@ -9,17 +9,18 @@ class Board
 
     def [](position)
         row, col = position
-        @board[row][col]
+        board[row][col]
     end
 
     def []=(position, val)
         row, col = position
-        @board[row][col] = val
+        board[row][col] = val
     end
 
     def valid?(position)
         row, col = position
-        unless row > (@board.length - 1) || col > (@board.length - 1)
+
+        unless row > (board.length - 1) || col > (board.length - 1)
             return true
         end
 
@@ -27,7 +28,7 @@ class Board
     end
 
     def empty?(position)
-        row, col = position
+        # row, col = position
 
         unless self[position] != "_"
             return true
@@ -37,7 +38,7 @@ class Board
     end
 
     def place_mark(position, mark)
-        row, col = position
+        # row, col = position
         unless self.empty?(position) && self.valid?(position)
             raise ArgumentError.new "Position out of bounds or occupied"
         end
@@ -59,8 +60,42 @@ class Board
     end
 
     def print
-        Board.print_board(@board)
+        Board.print_board(board)
     end
 
+    def win_row?(mark)
+        board.each do |sub|
+            return true if sub.all?{|e| e == mark}
+        end
+
+        false
+    end
+
+    def win_col?(mark)
+        board.transpose.each do |sub|
+            return true if sub.all?{|e| e == mark}
+        end
+
+        false
+    end
+
+    def win_diagonal?(mark)
+        diags = Hash.new(0)
+        board.each_with_index do |row, col|
+            diags[:for] += 1 if row[col] == mark
+            diags[:back] += 1 if row[-col-1] == mark
+        end
+        diags.values.any?{|v| v == board.size}
+    end
+
+    def win?(mark)
+        return true if win_row?(mark) || win_col?(mark) || win_diagonal?(mark)
+
+        false
+    end
+
+    def empty_positions?
+        board.flatten.any?{|p| p == "_"}
+    end
 
 end
